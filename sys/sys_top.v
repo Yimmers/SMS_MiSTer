@@ -317,6 +317,7 @@ reg  [8:0] coef_data;
 reg        coef_wr = 0;
 
 wire[11:0] ARX, ARY;
+wire[1:0]  horiz_int;
 reg [11:0] VSET = 0, HSET = 0;
 reg        FREESCALE = 0;
 reg  [2:0] scaler_flt;
@@ -690,6 +691,7 @@ ascal
 	.hdisp    (WIDTH),
 	.hmin     (hmin),
 	.hmax     (hmax),
+	.hint	  (horiz_int),
 	.vtotal   (HEIGHT + VFP + VBP + VS),
 	.vsstart  (HEIGHT + VFP),
 	.vsend    (HEIGHT + VFP + VS),
@@ -1466,6 +1468,7 @@ emu emu
 	.VGA_SL(scanlines),
 	.VIDEO_ARX(ARX),
 	.VIDEO_ARY(ARY),
+	.HORIZ_INT(horiz_int),
 
 `ifdef USE_FB
 	.FB_EN(fb_en),
