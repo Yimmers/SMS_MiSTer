@@ -42,6 +42,8 @@ module emu
 	output [11:0] VIDEO_ARX,
 	output [11:0] VIDEO_ARY,
 
+	output [1:0] HORIZ_INT,	// horizontal integer scaling setting
+	
 	output  [7:0] VGA_R,
 	output  [7:0] VGA_G,
 	output  [7:0] VGA_B,
@@ -143,6 +145,8 @@ wire [1:0] ar = status[27:26];
 
 assign VIDEO_ARX = (!ar) ? 12'd4 : (ar - 1'd1);
 assign VIDEO_ARY = (!ar) ? 12'd3 : 12'd0;
+	
+assign HORIZ_INT = status [31:30];
 
 // Status Bit Map:
 //             Upper                             Lower              
@@ -176,6 +180,7 @@ parameter CONF_STR = {
 	"P1O2,TV System,NTSC,PAL;",
 	"P1OQR,Aspect ratio,Original,Full Screen,[ARC1],[ARC2];",
 	"P1O35,Scandoubler Fx,None,HQ2x,CRT 25%,CRT 50%,CRT 75%;",
+	"P1OUV,Intgr Hori Scale,Off,Narrow,Wide;",
 	"P1-;",
 	"P1OD,Border,No,Yes;",
 	"D5P1OST,Masked left column,BG,Black,Cut;",
