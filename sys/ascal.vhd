@@ -211,6 +211,7 @@ ENTITY ascal IS
     hdisp   : IN natural RANGE 0 TO 4095;
     hmin    : IN natural RANGE 0 TO 4095;
     hmax    : IN natural RANGE 0 TO 4095; -- 0 <= hmin < hmax < hdisp
+    hint    : IN std_logic_vector(1 DOWNTO 0);
     vtotal  : IN natural RANGE 0 TO 4095;
     vsstart : IN natural RANGE 0 TO 4095;
     vsend   : IN natural RANGE 0 TO 4095;
@@ -1713,9 +1714,26 @@ BEGIN
       o_hsstart<=hsstart; -- <ASYNC> ?
       o_hsend  <=hsend; -- <ASYNC> ?
       o_hdisp  <=hdisp; -- <ASYNC> ?
-      o_hmin   <=hmin; -- <ASYNC> ?
-      o_hmax   <=hmax; -- <ASYNC> ?
-      
+      IF hint(1 DOWNTO 0)="00" THEN            -- Horizontal integer scaling off
+           o_hmin   <=hmin; -- <ASYNC> ?
+           o_hmax   <=hmax; -- <ASYNC> ?
+           o_hsize  <=o_hmax - o_hmin + 1;
+      ELSE                                     --Horizontal integer scaling on
+           IF hint(1 DOWNTO 0)="01" THEN       --Narrow (round upscaling multiple down)
+               o_hsize <= ((hmax-hmin + 1)/(i_hmax + 1))*(i_hmax + 1);
+           ELSE                                --Wide (round upscaling multiple up)
+               IF ((hmax-hmin + 1)/(i_hmax + 1) +1)*(i_hmax + 1) < o_hdisp THEN
+                    o_hsize <= ((hmax-hmin + 1)/(i_hmax + 1) +1)*(i_hmax + 1);
+               ELSE                            --switch to narrow if image wider than total display
+                    o_hsize <= ((hmax-hmin + 1)/(i_hmax + 1))*(i_hmax + 1);
+               END IF;
+           END IF;
+           IF o_hsize = 0 THEN                 -- No integer scaling if output smaller than input
+                o_hsize <= hmax - hmin + 1;
+           END IF; 
+           o_hmin <= (o_hdisp - o_hsize) / 2;
+           o_hmax <= o_hmin + o_hsize -1;
+      END IF;
       o_vtotal <=vtotal; -- <ASYNC> ?
       o_vsstart<=vsstart; -- <ASYNC> ?
       o_vsend  <=vsend; -- <ASYNC> ?
@@ -1723,7 +1741,7 @@ BEGIN
       o_vmin   <=vmin; -- <ASYNC> ?
       o_vmax   <=vmax; -- <ASYNC> ?
       
-      o_hsize  <=o_hmax - o_hmin + 1;
+
       o_vsize  <=o_vmax - o_vmin + 1;
       
       --------------------------------------------
